@@ -140,13 +140,14 @@ def compute_value_from_hf(task: mteb.TaskMetadata, value: str = "n_samples", spl
         logger.info(f"Loading dataset {task.metadata.dataset['path']}..")
         data = load_dataset(
             task.metadata.dataset["path"], 
-            split=split, name=config,
+            split=split, # name=config,
             trust_remote_code=True)
+        
         match value:
             case "n_samples":
                 return len(data)
             case "n_labels":
-                label_column = set(data.column_names) & {"label", "labels", "choice", "choices", "class", "classes"}
+                label_column = set(data.column_names) & {"label", "labels", "choice", "choices", "class", "cls", "classes"}
                 label = next(iter(label_column), None)
                 if label:
                     return len(data.unique(label))
@@ -244,4 +245,8 @@ for type_ in df.index.unique():
         caption=f'Datasets overview and metadata for {type_} tasks.',
         label=f'tab:datasets_{type_}',
         column_format=column_format)
-    
+
+# print([
+#     (task.metadata.name, compute_value_from_hf(task, value="n_labels", split="test"))
+#     for task in tasks if task.metadata.name in ["FGVCAircraft"]
+# ])
